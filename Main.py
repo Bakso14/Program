@@ -22,7 +22,7 @@ cv2.createTrackbar(sh, 'image',255,255,nothing)
 cv2.createTrackbar(vl, 'image',0,255,nothing)
 cv2.createTrackbar(vh, 'image',255,255,nothing)
 
-cap = cv2.VideoCapture('../Video_jalan/video_1_.mp4')
+#cap = cv2.VideoCapture('../Video_jalan/video_1_.mp4')
 kernel = np.ones((5,5),np.uint8)
 while(1):
     cv2.imshow('image',img)
@@ -34,8 +34,8 @@ while(1):
     val=cv2.getTrackbarPos(vl, 'image')
     vah=cv2.getTrackbarPos(vh, 'image')
         
-    _,src = cap.read()
-    #src = cv2.imread('../Video_jalan/video_1_/video_1_ 001.jpg')
+    #_,src = cap.read()
+    src = cv2.imread('../Video_jalan/video_1_/video_1_ 001.jpg')
     blur = cv2.GaussianBlur(src,(11,11),0)
     
     #scaling gambar
@@ -107,4 +107,4 @@ while(1):
         break
 
 cv2.destroyAllWindows()
-cap.release()
+#cap.release()
