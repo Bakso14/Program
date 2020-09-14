@@ -38,12 +38,15 @@ def getOrientation(pts, img):
     
         
     cv2.circle(img, cntr, 3, (255, 0, 255), 2)
-    p1 = (cntr[0] + 0.02 * eigenvectors[0,0] * eigenvalues[0,0], cntr[1] + 0.02 * eigenvectors[0,1] * eigenvalues[0,0])
-    p2 = (cntr[0] - 0.02 * eigenvectors[1,0] * eigenvalues[1,0], cntr[1] - 0.02 * eigenvectors[1,1] * eigenvalues[1,0])
-    drawAxis(img, cntr, p1, (0, 255, 0), 1)
-    drawAxis(img, cntr, p2, (255, 255, 0), 5)
+    #p1 = (cntr[0] + 0.02 * eigenvectors[0,0] * eigenvalues[0,0], cntr[1] + 0.02 * eigenvectors[0,1] * eigenvalues[0,0])
+    #p2 = (cntr[0] - 0.02 * eigenvectors[1,0] * eigenvalues[1,0], cntr[1] - 0.02 * eigenvectors[1,1] * eigenvalues[1,0])
+    #drawAxis(img, cntr, p1, (0, 255, 0), 100)
+    #drawAxis(img, cntr, p2, (255, 255, 0), 100)
     angle = atan2(eigenvectors[0,1], eigenvectors[0,0]) # orientation in radians
-    
+    length = 100
+    x2 = cntr[0] + length*cos(angle)
+    y2 = cntr[1] + length*sin(angle)
+    cv2.line(img,cntr,(int(x2),int(y2)),(255,0,0),1,cv2.LINE_AA)
     return angle
 
 
