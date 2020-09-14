@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from math import atan2, cos, sin, sqrt, pi
+from math import atan2, cos, sin
 def nothing(x):
     pass
     
