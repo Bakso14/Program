@@ -91,11 +91,11 @@ while(1):
         # Draw each contour only for visualisation purposes
         cv2.drawContours(crop, contours, i, (0, 0, 255), 2)        
         
-        cnt = contours[i]
-        rect = cv2.minAreaRect(cnt)
-        box = cv2.boxPoints(rect)
-        box = np.int0(box)
-        cv2.drawContours(crop,[box],0,(255,0,0),2)
+        #cnt = contours[i]
+        #rect = cv2.minAreaRect(cnt)
+        #box = cv2.boxPoints(rect)
+        #box = np.int0(box)
+        #cv2.drawContours(crop,[box],0,(255,0,0),2)
         
         #rows,cols = frame.shape[:2]
         #[vx,vy,x,y] = cv2.fitLine(cnt, cv2.DIST_L2,0,0.01,0.01)
