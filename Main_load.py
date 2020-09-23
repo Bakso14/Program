@@ -84,7 +84,9 @@ while(1):
     
     contours = cv2.findContours(warna, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)[0] #connected component data
     #spatio temporal
-    CC_O = np.zeros((len(contours)),np.int8) #connected component orientation
+    CC_O = np.zeros((2,len(contours)),np.int8) #connected component orientation
+    C_O = np.zeros((len(contours)),np.int8) #orientasi klaster
+    v = 0
     for i, c in enumerate(contours):
         # Calculate the area of each contour
         area = cv2.contourArea(c)
@@ -110,11 +112,32 @@ while(1):
         
         a = getOrientation(c, frame)
         a_derajat = 360*a/(2*pi)
-        print(a_derajat)
+        #print(a_derajat)
 
         #spatio tempporal
-        CC_O[i] = a_derajat
+        CC_O[0,v] = a_derajat
+        CC_O[1,v] = i
+        v = v+1
         
+    #Pengklasteran berdasarkan orientasi
+    koreksi_o = 10
+    final_clstr = []
+    final_clstr.append([CC_O[0,0]])
+    tanda = 0
+    for wow in range(v):
+        for a in range(len(final_clstr)):
+           if CC_O[0,wow] < (final_clstr[a][0] + koreksi_o) and CC_O[0,wow] > (final_clstr[a][0] - koreksi_o):
+               final_clstr[a].append(CC_O[1,wow])
+               tanda = 0
+               break
+           else:
+              tanda = 1
+        if tanda == 1 :
+            final_clstr.append([CC_O[0,wow]])
+            final_clstr[len(final_clstr)-1].append(CC_O[1,wow])
+            tanda = 0
+        
+    print(final_clstr)
         
     
     #cv2.imshow('mask',erosion)
