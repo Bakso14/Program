@@ -17,8 +17,6 @@ def getOrientation(pts, img):
     mean, eigenvectors, eigenvalues = cv2.PCACompute2(data_pts, mean)
     # Store the center of the object
     cntr = (int(mean[0,0]), int(mean[0,1]))
-    
-        
     cv2.circle(img, cntr, 3, (255, 0, 255), 2)
     angle = atan2(eigenvectors[0,1], eigenvectors[0,0]) # orientation in radians
     length = 100
@@ -48,11 +46,8 @@ while(1):
     dsize = (width, height)
     frame= cv2.resize(blur,dsize)
     crop = frame[200:360,0:640]
-    
     hsv = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
-
     warna = cv2.inRange(hsv, HSV_Low, HSV_High)
-    
     contours = cv2.findContours(warna, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)[0] #connected component data
     #spatio temporal
     CC_O = np.zeros((2,len(contours)),np.int16) #connected component orientation
@@ -60,11 +55,9 @@ while(1):
     for i, c in enumerate(contours):
         # Calculate the area of each contour
         area = cv2.contourArea(c)
-        
         # Memilih luas kontur
         if area <4e1 or area > 100e2 :
             continue
-        
         a = getOrientation(c, frame)
         a_derajat = 360*a/(2*pi)
         #print(a_derajat)
