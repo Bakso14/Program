@@ -64,7 +64,7 @@ while(1):
     #_,src = cap.read()
     #25
     src = cv2.imread('../Video_jalan/video_1_/video_1_ 001.jpg')
-    src = cv2.imread('../Video_jalan/video_1_/Testjpg.jpg')
+    #src = cv2.imread('../Video_jalan/video_1_/Testjpg.jpg')
     blur = cv2.GaussianBlur(src,(9,9),0)
     
     scale_percent = 50  
@@ -84,8 +84,7 @@ while(1):
     
     contours = cv2.findContours(warna, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)[0] #connected component data
     #spatio temporal
-    CC_O = np.zeros((2,len(contours)),np.int8) #connected component orientation
-    C_O = np.zeros((len(contours)),np.int8) #orientasi klaster
+    CC_O = np.zeros((2,len(contours)),np.int16) #connected component orientation
     v = 0
     for i, c in enumerate(contours):
         # Calculate the area of each contour
@@ -96,7 +95,7 @@ while(1):
             continue
         
         # Draw each contour only for visualisation purposes
-        cv2.drawContours(frame, contours, i, (0, 0, 255), 1)        
+        #cv2.drawContours(frame, contours, i, (0, 0, 255), 1)        
         
         #cnt = contours[i]
         #rect = cv2.minAreaRect(cnt)
@@ -118,7 +117,6 @@ while(1):
         CC_O[0,v] = a_derajat
         CC_O[1,v] = i
         v = v+1
-        
     #Pengklasteran berdasarkan orientasi
     koreksi_o = 10
     final_clstr = []
@@ -136,9 +134,14 @@ while(1):
             final_clstr.append([CC_O[0,wow]])
             final_clstr[len(final_clstr)-1].append(CC_O[1,wow])
             tanda = 0
-        
-    print(final_clstr)
-        
+    
+    #print(final_clstr)
+    
+    #melihat tiap klaster
+    #for ay in range(1,len(final_clstr[1])):
+        #cv2.drawContours(frame, contours, final_clstr[1][ay], (255, 0, 0), 1)
+    
+    
     
     #cv2.imshow('mask',erosion)
     cv2.imshow('hasil_Warna',warna)
@@ -154,3 +157,7 @@ while(1):
 
 cv2.destroyAllWindows()
 #cap.release()
+
+
+
+#ayik = np.concatenate((contours[0],contours[1]), axis=0) #menggabung 2 contours, 0 kebawah 1 ke samping
