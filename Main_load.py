@@ -28,6 +28,12 @@ def getOrientation(pts, img):
 cap = cv2.VideoCapture('../Video_jalan/video_1_.mp4')
 #cap = cv2.VideoCapture(0)
 
+#menyimpan video
+number_frame = 30.0 #higher frames better quality of the video
+video_size = (640,160)
+fourcc = cv2.VideoWriter_fourcc(*'DIVX')
+out = cv2.VideoWriter('hasil.mp4',fourcc, number_frame,video_size)
+
 while(1):
     start = time.time()
     data = np.loadtxt('data_hsv.dat')
@@ -35,11 +41,11 @@ while(1):
     HSV_High = data[1,:]
            
     #src = cv2.imread('../Video_jalan/video_1_/video_1_ 001.jpg')
-    _,src = cap.read()
+    ret,src = cap.read()
     #src = cv2.imread('../Video_jalan/video_1_/Testjpg.jpg')
     #src = cv2.imread('../Video_jalan/video_1_/Test.jpg')
-    blur = cv2.GaussianBlur(src,(9,9),0)
     
+    blur = cv2.GaussianBlur(src,(9,9),0)
     scale_percent = 50  
     width = int(src.shape[1] * scale_percent / 100)
     height = int(src.shape[0] * scale_percent / 100)
@@ -111,16 +117,22 @@ while(1):
         thickness = 2
         image = cv2.polylines(crop, [garis], isClosed, color, thickness) 
     
+    
+    cv2.imshow('hasil_Warna',warna)
+    cv2.imshow('crop',crop)
+    
+    #menyimpan video
+    out.write(crop)
+    
     stop = time.time()
     seconds = stop - start
     fps = 1 / seconds
     print("Estimated frames per second : {0}".format(fps))
-    cv2.imshow('hasil_Warna',warna)
-    cv2.imshow('crop',crop)
     
     k = cv2.waitKey(5) & 0xFF
     if k == 27:
         break
 
-cv2.destroyAllWindows()
 cap.release()
+out.release()
+cv2.destroyAllWindows()
