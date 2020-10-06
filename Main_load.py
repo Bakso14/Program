@@ -126,8 +126,8 @@ while(1):
         
         stop = time.time()
         seconds = stop - start
-        fps = 1 / seconds
-        print("Estimated frames per second : {0}".format(fps))
+        #fps = 1 / seconds
+        #print("Estimated frames per second : {0}".format(fps))
         
         k = cv2.waitKey(5) & 0xFF
         if k == 27:
