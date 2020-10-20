@@ -35,9 +35,11 @@ while(1):
     vah=cv2.getTrackbarPos(vh, 'image')
         
     #_,src = cap.read()
-    src = cv2.imread('../Video_jalan/video_1_/video_1_ 001.jpg')
+    #src = cv2.imread('../Video_jalan/video_1_/video_1_ 001.jpg')
+    src = cv2.imread('../Video_jalan/Meer Selatan/Meer Selatan 10.jpg')
+    srca = cv2.imread('../Video_jalan/Meer Selatan/Meer Selatan 10.jpg',0)
     blur = cv2.GaussianBlur(src,(11,11),0)
-    
+    ret,th1 = cv2.threshold(srca,127,255,cv2.THRESH_BINARY)
     #scaling gambar
     scale_percent = 50  
     width = int(src.shape[1] * scale_percent / 100)
@@ -97,7 +99,8 @@ while(1):
     #cv2.imshow('frame',frame)
     cv2.imshow('mask',warna)
     cv2.imshow('crop',crop)
-    cv2.imshow('hasil canny',dst)
+    cv2.imshow('threshold',th1)
+    #cv2.imshow('hasil canny',dst)
     #cv2.imshow('res',res)
     #cv2.imshow('erot',erosion)
     #cv2.imshow('dilet',dilation)

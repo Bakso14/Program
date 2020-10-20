@@ -51,10 +51,6 @@ while(1):
     
     cv2.imshow('thresh',img)
     
-    data = np.loadtxt('data_hsv.dat')
-    HSV_Low = data[0,:]
-    HSV_High = data[1,:]
-           
     #src = cv2.imread('../Video_jalan/video_1_/video_1_ 001.jpg')
     src = cv2.imread('../Video_jalan/Meer Selatan/Meer Selatan 10.jpg')
     #src = cv2.imread('../Video_jalan/Masjid/Taman Alumni, Barat Masjid 01.jpg')
@@ -62,9 +58,7 @@ while(1):
     #src = cv2.imread('../Video_jalan/video_1_/Testjpg.jpg')
     #src = cv2.imread('../Video_jalan/video_1_/Test.jpg')
 #if ret:
-    
     blur = cv2.GaussianBlur(src,(9,9),0)   
-    gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
     
     scale_percent = 50  
     width = int(src.shape[1] * scale_percent / 100)
@@ -72,45 +66,27 @@ while(1):
     dsize = (width, height)
     
     frame= cv2.resize(blur,dsize)
-    gray = cv2.resize(gray,dsize)
     
     crop = frame[200:360,0:640]
-    crop_gray = gray[200:360,0:640]
     
-    hsv = cv2.cvtColor(crop,cv2.COLOR_BGR2HSV)
-    warna = cv2.inRange(hsv, HSV_Low, HSV_High)
+    gray = cv2.cvtColor(crop,cv2.COLOR_BGR2GRAY)
     
-    dilation = cv2.dilate(warna,kernel,iterations = 1)
-    erosion = cv2.erode(dilation,kernel_er,iterations = 2)
+    ret,th1 = cv2.threshold(gray,127,255,cv2.THRESH_BINARY)
     
     
-    contours = cv2.findContours(warna, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)[0] #connected component data
+    
+    contours = cv2.findContours(th1, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)[0] #connected component data
     #spatio temporal
     cluster_orientation = np.zeros((2,len(contours)),np.int16) #connected component orientation
     v = 0
     for i, c in enumerate(contours):
-        #panjang = len(contours[i])
-        #if panjang <100 or panjang>1000:
-        #    continue
         
         # Calculate the area of each contour
         area = cv2.contourArea(c)
         # Memilih luas kontur
-        #if area <2e1 or area > 1e2:
-         #    continue 
-    
-        cnt = contours[i]
-        rect = cv2.minAreaRect(cnt)
-        areakotak = rect[1][0]*rect[1][1]
-        k = 10
-        if ((rect[1][0] < k) and (rect[1][1] < k )) or ( not(rect[1][0] < k) and not(rect[1][1] < k ) ):
-            continue
-        #if areakotak<100 or areakotak > 2000:
-        #     continue
-        box = cv2.boxPoints(rect)
-        box = np.int0(box)
+        if area <2e1 or area > 1e2:
+             continue 
         
-        cv2.drawContours(crop,[box],0,(255,255,0),2)
         cv2.drawContours(crop, contours, i, (0, 0, 255), 2)     
         
         a = getOrientation(c, crop)
@@ -119,16 +95,6 @@ while(1):
         cluster_orientation[0,v] = a_derajat
         cluster_orientation[1,v] = i
         v = v+1
-        
-        i_str = str(i)
-        font = cv2.FONT_HERSHEY_SIMPLEX 
-        org = (box[3][0],box[3][1])
-        fontScale = 0.5
-        color = (0, 0, 0) 
-        thickness = 1
-        #cv2.putText(crop, i_str , org, font, fontScale, color, thickness, cv2.LINE_AA) 
-        
-        
         
     #Pengklasteran berdasarkan orientasi dan SSE
     koreksi_o = cv2.getTrackbarPos(co, 'thresh')
@@ -183,12 +149,8 @@ while(1):
             image = cv2.polylines(crop, [garis], isClosed, color, thickness) 
     
             
-    #cv2.imshow('hasil_Warna',warna)
     cv2.imshow('crop',crop)
     #cv2.imshow('asli',src)
-    #cv2.imshow('diation',dilation)
-    #cv2.imshow('erosion',erosion)
-    #cv2.imshow('gray',crop_gray)
      
     #menyimpan video
     out.write(crop)

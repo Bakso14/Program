@@ -49,7 +49,6 @@ kernel = np.ones((3,3),np.uint8)
 kernel_er = np.ones((3,3),np.uint8)
 
 
-
 while(1):
     start = time.time()
     
@@ -57,10 +56,6 @@ while(1):
     high=cv2.getTrackbarPos(cannyH, 'thresh')
     low=cv2.getTrackbarPos(cannyL, 'thresh')
     
-    data = np.loadtxt('data_hsv.dat')
-    HSV_Low = data[0,:]
-    HSV_High = data[1,:]
-           
     #src = cv2.imread('../Video_jalan/video_1_/video_1_ 001.jpg')
     src = cv2.imread('../Video_jalan/Meer Selatan/Meer Selatan 10.jpg')
     #src = cv2.imread('../Video_jalan/Masjid/Taman Alumni, Barat Masjid 01.jpg')
@@ -68,23 +63,22 @@ while(1):
     #src = cv2.imread('../Video_jalan/video_1_/Testjpg.jpg')
     #src = cv2.imread('../Video_jalan/video_1_/Test.jpg')
 #if ret:
+    
     blur = cv2.GaussianBlur(src,(9,9),0)   
     gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+    
     scale_percent = 50  
     width = int(src.shape[1] * scale_percent / 100)
     height = int(src.shape[0] * scale_percent / 100)
     dsize = (width, height)
+    
     frame= cv2.resize(blur,dsize)
     gray = cv2.resize(gray,dsize)
+    
     crop = frame[200:360,0:640]
     crop_gray = gray[200:360,0:640]
-    hsv = cv2.cvtColor(crop,cv2.COLOR_BGR2HSV)
-    warna = cv2.inRange(hsv, HSV_Low, HSV_High)
     
     edges = cv2.Canny(crop_gray,high,low,apertureSize = 3,)
-    dilation = cv2.dilate(edges,kernel,iterations = 1)
-    erosion = cv2.erode(dilation,kernel_er,iterations = 2)
-    
     
     contours = cv2.findContours(edges, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)[0] #connected component data
     #spatio temporal
@@ -184,7 +178,7 @@ while(1):
             thickness = 2
             image = cv2.polylines(crop, [garis], isClosed, color, thickness) 
     
-     # Copy edges to the images that will display the results in BGR
+
     cdst = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)
     cdstP = np.copy(cdst)
     
