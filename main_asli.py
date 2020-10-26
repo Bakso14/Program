@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import time
 from math import atan2, cos, sin, pi
+from scipy.signal import find_peaks
 def nothing(x):
     pass
 
@@ -27,10 +28,12 @@ def getOrientation(pts, img):
 
 co = 'koreksi orientasi'
 th_sse = 'threshold SSE'
+th_bin = 'threshold binary'
 img = np.zeros((25,512,3), np.uint8)
 cv2.namedWindow('thresh')
 cv2.createTrackbar(co, 'thresh',20,360,nothing)
 cv2.createTrackbar(th_sse, 'thresh',75,100,nothing)
+cv2.createTrackbar(th_bin, 'thresh',127,255,nothing)
 
 #cap = cv2.VideoCapture('../Video_jalan/video_1_.mp4')
 #cap = cv2.VideoCapture(0)
@@ -71,10 +74,10 @@ while(1):
     
     gray = cv2.cvtColor(crop,cv2.COLOR_BGR2GRAY)
     
-    ret,th1 = cv2.threshold(gray,127,255,cv2.THRESH_BINARY)
+    threshold_bin = cv2.getTrackbarPos(th_bin, 'thresh')
+    ret,th1 = cv2.threshold(gray,threshold_bin,255,cv2.THRESH_BINARY)
     
-    
-    
+        
     contours = cv2.findContours(th1, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)[0] #connected component data
     #spatio temporal
     cluster_orientation = np.zeros((2,len(contours)),np.int16) #connected component orientation
@@ -84,7 +87,7 @@ while(1):
         # Calculate the area of each contour
         area = cv2.contourArea(c)
         # Memilih luas kontur
-        if area <2e1 or area > 1e2:
+        if area <2 or area > 200:
              continue 
         
         cv2.drawContours(crop, contours, i, (0, 0, 255), 2)     
@@ -146,10 +149,26 @@ while(1):
             color = (255, 0, 0)   
             isClosed = False
             thickness = 2
-            image = cv2.polylines(crop, [garis], isClosed, color, thickness) 
+            
+            peaks, _ = find_peaks(y_a[:,0])
+            peaks_lagi, _ = find_peaks(y_a[:,0]*-1)
+            #print(ins,"Hasil",x_a[:,0][peaks],y_a[:,0][peaks])
+            #print(ins,"Hasil",x_a[:,0][peaks_lagi],y_a[:,0][peaks_lagi])
+            weww = y_a[:,0][peaks],x_a[:,0][peaks]
+            wewe = y_a[:,0][peaks_lagi],x_a[:,0][peaks_lagi]    
+            wewew = 0
+            if weww[0] >= 0:
+                #cv2.circle(crop, weww, 3, (0, 0, 255), 2)
+                wewew = wewew + len(weww[0])
+            if wewe[0] >= 0:
+                #cv2.circle(crop, wewe, 3, (0, 0, 255), 2)
+                wewew = wewew + len(wewe[0])
+            if wewew <= 1:
+                image = cv2.polylines(crop, [garis], isClosed, color, thickness) 
     
             
     cv2.imshow('crop',crop)
+    cv2.imshow('threshold',th1)
     #cv2.imshow('asli',src)
      
     #menyimpan video

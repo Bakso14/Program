@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import time
 from math import atan2, cos, sin, pi
+from scipy.signal import find_peaks
 def nothing(x):
     pass
 
@@ -21,7 +22,7 @@ def getOrientation(pts, img):
     length = 100
     x2 = cntr[0] + length*cos(angle)
     y2 = cntr[1] + length*sin(angle)
-    cv2.line(img,cntr,(int(x2),int(y2)),(0,255,0),1,cv2.LINE_AA)
+    #cv2.line(img,cntr,(int(x2),int(y2)),(0,255,0),1,cv2.LINE_AA)
     return angle
 
 
@@ -106,8 +107,8 @@ while(1):
         box = cv2.boxPoints(rect)
         box = np.int0(box)
         
-        cv2.drawContours(crop,[box],0,(255,255,0),2)
-        cv2.drawContours(crop, contours, i, (0, 0, 255), 2)     
+        #cv2.drawContours(crop,[box],0,(255,255,0),2)
+        #cv2.drawContours(crop, contours, i, (0, 0, 255), 2)     
         
         a = getOrientation(c, crop)
         a_derajat = 360*a/(2*pi)
@@ -176,7 +177,22 @@ while(1):
             color = (255, 0, 0)   
             isClosed = False
             thickness = 2
-            image = cv2.polylines(crop, [garis], isClosed, color, thickness) 
+            
+            peaks, _ = find_peaks(y_a[:,0])
+            peaks_lagi, _ = find_peaks(y_a[:,0]*-1)
+            #print(ins,"Hasil",x_a[:,0][peaks],y_a[:,0][peaks])
+            #print(ins,"Hasil",x_a[:,0][peaks_lagi],y_a[:,0][peaks_lagi])
+            weww = y_a[:,0][peaks],x_a[:,0][peaks]
+            wewe = y_a[:,0][peaks_lagi],x_a[:,0][peaks_lagi]    
+            wewew = 0
+            if weww[0] >= 0:
+                #cv2.circle(crop, weww, 3, (0, 0, 255), 2)
+                wewew = wewew + len(weww[0])
+            if wewe[0] >= 0:
+                #cv2.circle(crop, wewe, 3, (0, 0, 255), 2)
+                wewew = wewew + len(wewe[0])
+            if wewew <= 1:
+                image = cv2.polylines(crop, [garis], isClosed, color, thickness) 
     
 
     cdst = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)

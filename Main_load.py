@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import time
 from math import atan2, cos, sin, pi
+from scipy.signal import find_peaks
 def nothing(x):
     pass
 
@@ -89,10 +90,6 @@ while(1):
     cluster_orientation = np.zeros((2,len(contours)),np.int16) #connected component orientation
     v = 0
     for i, c in enumerate(contours):
-        #panjang = len(contours[i])
-        #if panjang <100 or panjang>1000:
-        #    continue
-        
         # Calculate the area of each contour
         area = cv2.contourArea(c)
         # Memilih luas kontur
@@ -180,7 +177,22 @@ while(1):
             color = (255, 0, 0)   
             isClosed = False
             thickness = 2
-            image = cv2.polylines(crop, [garis], isClosed, color, thickness) 
+            
+            peaks, _ = find_peaks(y_a[:,0])
+            peaks_lagi, _ = find_peaks(y_a[:,0]*-1)
+            #print(ins,"Hasil",x_a[:,0][peaks],y_a[:,0][peaks])
+            #print(ins,"Hasil",x_a[:,0][peaks_lagi],y_a[:,0][peaks_lagi])
+            weww = y_a[:,0][peaks],x_a[:,0][peaks]
+            wewe = y_a[:,0][peaks_lagi],x_a[:,0][peaks_lagi]    
+            wewew = 0
+            if weww[0] >= 0:
+                #cv2.circle(crop, weww, 3, (0, 0, 255), 2)
+                wewew = wewew + len(weww[0])
+            if wewe[0] >= 0:
+                #cv2.circle(crop, wewe, 3, (0, 0, 255), 2)
+                wewew = wewew + len(wewe[0])
+            if wewew <= 1:
+                image = cv2.polylines(crop, [garis], isClosed, color, thickness) 
     
             
     #cv2.imshow('hasil_Warna',warna)
@@ -189,7 +201,7 @@ while(1):
     #cv2.imshow('diation',dilation)
     #cv2.imshow('erosion',erosion)
     #cv2.imshow('gray',crop_gray)
-     
+    
     #menyimpan video
     out.write(crop)
     
