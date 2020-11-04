@@ -2,7 +2,8 @@ import cv2
 import numpy as np
 import time
 from math import atan2, cos, sin, pi
-from scipy.signal import find_peaks
+from scipy.signal import find_peaks, argrelextrema
+from numpy import *
 def nothing(x):
     pass
 
@@ -32,12 +33,13 @@ co = 'koreksi orientasi'
 th_sse = 'threshold SSE'
 img = np.zeros((25,512,3), np.uint8)
 cv2.namedWindow('thresh')
-cv2.createTrackbar(cannyH, 'thresh',239,255,nothing)
+cv2.createTrackbar(cannyH, 'thresh',227,255,nothing)
 cv2.createTrackbar(cannyL, 'thresh',255,255,nothing)
 cv2.createTrackbar(co, 'thresh',20,360,nothing)
 cv2.createTrackbar(th_sse, 'thresh',75,100,nothing)
 
 #cap = cv2.VideoCapture('../Video_jalan/video_1_.mp4')
+#cap = cv2.VideoCapture('../Video_jalan/Autonomous Car/Meer Selatan.mp4')
 #cap = cv2.VideoCapture(0)
 
 #menyimpan video
@@ -49,9 +51,13 @@ out = cv2.VideoWriter('hasil.mp4',fourcc, number_frame,video_size)
 kernel = np.ones((3,3),np.uint8)
 kernel_er = np.ones((3,3),np.uint8)
 
-
+final_clstr = []
+numero_clstr = []
+jumlah_frame = 0
 while(1):
     start = time.time()
+    
+    jumlah_frame = jumlah_frame + 1
     
     cv2.imshow('thresh',img)
     high=cv2.getTrackbarPos(cannyH, 'thresh')
@@ -130,15 +136,38 @@ while(1):
     #Pengklasteran berdasarkan orientasi dan SSE
     koreksi_o = cv2.getTrackbarPos(co, 'thresh')
     threshold_SSE = cv2.getTrackbarPos(th_sse, 'thresh')*1000
-    final_clstr = []
     ayik = []
-    final_clstr.append([cluster_orientation[0,0]])
+    R = 10 # maksimal dalam clstr
+    N = 4 # maksimal cc dalam clstr
+    
+    a = 0
+    while a < len(final_clstr):
+        b = 1
+        while b < len(final_clstr[a]):
+            if (jumlah_frame-numero_clstr[a][b]) > N:
+                del final_clstr[a][b]
+                del numero_clstr[a][b]
+                b = b - 1
+            b = b + 1
+        
+        if len(final_clstr[a]) < 2:
+            del final_clstr[a]
+            del numero_clstr[a]
+            a = a - 1
+        a = a + 1
+            
+            
+    print(len(final_clstr))
+    if len(final_clstr) < 1 :
+        final_clstr.append([cluster_orientation[0,0]])
+        numero_clstr.append([1])
     tanda = 0
     for connected_component in range(v):
         for a in range(len(final_clstr)):
             if cluster_orientation[0,connected_component] < (final_clstr[a][0] + koreksi_o) and cluster_orientation[0,connected_component] > (final_clstr[a][0] - koreksi_o):
                 final_clstr[a].append(contours[cluster_orientation[1,connected_component]])
-                if len(final_clstr[a]) > 1:
+                numero_clstr[a].append(jumlah_frame)
+                if len(final_clstr[a]) > 1 and len(final_clstr[a]) < R:
                     gabung = np.concatenate((final_clstr[a][1:len(final_clstr[a])]), axis=0)
                     z = np.polyfit(gabung[:,0,1],gabung[:,0,0],3 ,full = True)
                     #print(z[1])
@@ -149,15 +178,19 @@ while(1):
                     else:
                         ayik.append(final_clstr[a])
                         del final_clstr[a][len(final_clstr[a])-1]
+                        del numero_clstr[a][len(final_clstr[a])-1]
                         tanda = 1
                 else:
                     del final_clstr[a][len(final_clstr[a])-1]
+                    del numero_clstr[a][len(final_clstr[a])-1]
                     tanda = 1
             else:
                tanda = 1
         if tanda == 1 :
             final_clstr.append([cluster_orientation[0,connected_component]])
+            numero_clstr.append([1])
             final_clstr[len(final_clstr)-1].append(contours[cluster_orientation[1,connected_component]])
+            numero_clstr[len(final_clstr)-1].append(jumlah_frame)
             tanda = 0
     
     
@@ -178,21 +211,18 @@ while(1):
             isClosed = False
             thickness = 2
             
-            peaks, _ = find_peaks(y_a[:,0])
-            peaks_lagi, _ = find_peaks(y_a[:,0]*-1)
-            #print(ins,"Hasil",x_a[:,0][peaks],y_a[:,0][peaks])
-            #print(ins,"Hasil",x_a[:,0][peaks_lagi],y_a[:,0][peaks_lagi])
-            weww = y_a[:,0][peaks],x_a[:,0][peaks]
-            wewe = y_a[:,0][peaks_lagi],x_a[:,0][peaks_lagi]    
-            wewew = 0
-            if weww[0] >= 0:
-                #cv2.circle(crop, weww, 3, (0, 0, 255), 2)
-                wewew = wewew + len(weww[0])
-            if wewe[0] >= 0:
-                #cv2.circle(crop, wewe, 3, (0, 0, 255), 2)
-                wewew = wewew + len(wewe[0])
-            if wewew <= 1:
+            local_minmax = diff(sign(diff(y_a[:,0]))).nonzero()[0] + 1 # local min+max
+
+            #print(ins,"Hasil",len(local_minmax))
+            if len(local_minmax) <= 1:
                 image = cv2.polylines(crop, [garis], isClosed, color, thickness) 
+                
+            i_str = str(ins)
+            font = cv2.FONT_HERSHEY_SIMPLEX 
+            org = (y_a[:,0][len(y_a)-1],x_a[:,0][len(y_a)-1])
+            fontScale = 0.5
+            color = (0, 0, 0) 
+            #cv2.putText(crop, i_str , org, font, fontScale, color, 1, cv2.LINE_AA) 
     
 
     cdst = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)
